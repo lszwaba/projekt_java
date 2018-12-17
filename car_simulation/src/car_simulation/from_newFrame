@@ -1,0 +1,151 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package car_simulation;
+
+
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.NumberFormat;
+
+import javax.swing.*;
+
+/**
+ *
+ * @author lukas
+ */
+public class NewFrame extends JFrame implements PropertyChangeListener{
+    JFormattedTextField speedText;
+    JTextArea textArea;
+    double main = 1;
+    double speed = 1;
+    int biegi = 1;
+    
+    
+    public NewFrame(){
+        
+         //podstawowe narzedzia
+        Toolkit kit = Toolkit.getDefaultToolkit();  
+        //pobiera rozdzielczosc ekranu
+        Dimension screenSize = kit.getScreenSize();
+        setSize(screenSize.width/4, screenSize.height/4);
+        setLocation(screenSize.width/4,screenSize.height/4);
+        //panel
+        JPanel panel = new JPanel();
+        JPanel fieldPanel = new JPanel();
+        //label
+        JLabel speedLabel = new JLabel("Speed");
+        JLabel rpmLabel = new JLabel("rpm");
+        JLabel biegiLabel = new JLabel("biegi");
+        //text field        
+        speedText = new JFormattedTextField(main);
+        speedText.setValue(speed);
+        speedText.setEditable(false);
+        
+        
+       
+        //JTextField rpmText = new JTextField(String.valueOf();
+        //text area
+       
+       
+        //add to panel
+        
+        ListenerForKeys lkeys = new ListenerForKeys();        
+        this.addKeyListener(lkeys);
+        
+        //PropertyChange changeProperty = new PropertyChange();
+        fieldPanel.add(speedText);
+        
+        panel.add(speedLabel);
+        panel.add(rpmLabel);
+        panel.add(biegiLabel);
+            //text
+        //panel.add(speedText);
+        //panel.add(rpmText);
+        //add to frame
+        //key listeners
+        setBor
+        add(fieldPanel);
+        add(panel);
+        
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+    
+        public void propertyChange(PropertyChangeEvent evt) {
+            Object source = evt.getSource();
+            if (source == speedText) {
+                double main = speed ;
+                speedText.setValue(new Double(main));
+            }
+        }
+        
+    
+    
+    private class ListenerForKeys implements KeyListener{
+       
+        @Override
+	public void keyPressed(KeyEvent evt) {
+            if (evt.getKeyCode() == evt.VK_UP){
+                
+                    if (speed <= 49*biegi){
+                    double rpm = 0;                    
+                    rpm = speed + 0.8;
+                    System.out.printf("%.0f\t %d%n " , rpm,biegi);
+                    speed++;
+                    }   
+            }
+            else if(evt.getKeyCode() == evt.VK_DOWN){
+                
+                if(speed >=0)
+                { 
+                System.out.printf("%.0f\t %d%n", speed,biegi);
+                speed -= 1.3;
+                }
+            }
+            else if (evt.getKeyCode() == evt.VK_Z){
+                if(biegi >=1 && biegi<=5){
+                    biegi++;
+                }
+            }
+            else if (evt.getKeyCode() == evt.VK_X){
+                if(biegi >=1 && biegi<=5){
+                    biegi--;
+                }
+            }
+	}
+
+	@Override
+	public void keyReleased(KeyEvent evt) {
+            Runnable r = () -> {               
+                try{
+                    while (speed > 0)
+                    {
+                        Thread.sleep(2000);
+                        if(speed >= 0){
+                        System.out.printf("%.0f\t %d%n", speed,biegi);
+                        }
+                        speed = speed - 1;
+                        
+                    }       
+                }
+                catch(InterruptedException e){                    
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
+        
+            
+        }   
+	@Override
+	public void keyTyped(KeyEvent evt) {
+            
+	}
+    }
+   
+}
+
