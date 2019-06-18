@@ -57,8 +57,10 @@ public class NewFrame extends JPanel {
     //constructor
     public NewFrame() {
         super(new BorderLayout());
+
         setUpFormats();
         ListenerForKeys lkeys = new ListenerForKeys();
+
         //Create labels
         speedLabel = new JLabel(speedString);
         rpmLabel = new JLabel(rpmString);
@@ -138,6 +140,7 @@ public class NewFrame extends JPanel {
         EventQueue.invokeLater(() -> {
 
             createGUI();
+
         });
     }
 
@@ -158,105 +161,141 @@ public class NewFrame extends JPanel {
             if (engineStatus == true) {
 
                 if (evt.getKeyCode() == evt.VK_UP && gear != 0) {
-                    rpm = (80 * moc) / (double) gear;
-                    if (rpm < 4600) {
-                        moc += (1 / (double) gear);
-                        speed = moc;
-                        speedField.setValue(speed);
-                        rpm = (80 * moc) / (double) gear;
-                        rpmField.setValue(rpm);
 
+                    speed += (1 / (double) gear);
+                    rpm = (60 * speed) /  gear;
+
+                    if (speed >= 230) {
+                        speed = 230;
+                        speedField.setValue(speed);
+                    }
+                    if (rpm >= 4600) {
+                        rpm = 4600;
+                        rpmField.setValue(rpm);
                     }
                     speedField.setValue((int) speed);
-                    rpmField.setValue((int) (rpmStarMin + rpm));
+                    rpmField.setValue((int) rpm);
 
-            
+                    
                 }
+
             }
             //break
             if (evt.getKeyCode() == evt.VK_DOWN) {
-                /**
-                 * int k; if (engineStatus == true) { speed -= 1; k = (60 *
-                 * speed) / gear; if (speed < 0) { rpm = rpmStarMin; speed = 0;
-                 * rpmField.setValue(rpm - k); speedField.setValue(speed); }
-                 * else { rpmField.setValue(rpm - k);
-                 * speedField.setValue(speed); }
-                 *
-                 * } else {
-                 *
-                 * speed -= 1; k = (60 * speed) / gear; if (speed < 0) { speed =
-                 * 0; rpmField.setValue(rpm - k); speedField.setValue(speed); }
-                 * else { rpmField.setValue(rpm - k);
-                 * speedField.setValue(speed); } }
-                 *
-                 */
-            }
 
-            if (evt.getKeyCode() == evt.VK_Z) {
+                int k;
                 if (engineStatus == true) {
-                    try {
-                        ++gear;
-                        gear = gearTab[gear];
-                        gearField.setValue(gearTab[gear]);
+                    speed -= 1;
+                    rpm = (60 * speed) / (double) gear;
+                    if (speed < 0) {
+                        speed = 0;
+                    }
+                    if (rpm < 0)
+                    {
+                        rpm = 0;
+                    }
+                    
+                    rpmField.setValue((int)rpm);
+                    speedField.setValue((int)speed);
+                     
+                
+                }
+                
 
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        --gear;
-                        gear = gearTab[gear];
-                        gearField.setValue(gearTab[gear]);
+
+                }
+
+                if (evt.getKeyCode() == evt.VK_Z) {
+                    if (engineStatus == true) {
+                        try {
+                            ++gear;
+                            gear = gearTab[gear];
+                            gearField.setValue(gearTab[gear]);
+
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            --gear;
+                            gear = gearTab[gear];
+                            gearField.setValue(gearTab[gear]);
+                        }
                     }
                 }
-            }
-            if (evt.getKeyCode() == evt.VK_X) {
-                if (engineStatus == true) {
-                    try {
-                        --gear;
-                        gear = gearTab[gear];
-                        gearField.setValue(gear);
+                if (evt.getKeyCode() == evt.VK_X) {
+                    if (engineStatus == true) {
+                        try {
+                            --gear;
+                            gear = gearTab[gear];
+                            gearField.setValue(gear);
 
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        ++gear;
-                        gear = gearTab[gear];
-                        gearField.setValue(gearTab[gear]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            ++gear;
+                            gear = gearTab[gear];
+                            gearField.setValue(gearTab[gear]);
+                        }
                     }
                 }
-            }
-            //start engine
-            if (evt.getKeyCode() == evt.VK_S) {
-                engineStatusText = "on";
-                engineStatus = true;
-                engineStatusTextField.setValue("on");
-                rpm = rpmStarMin;
-                rpmField.setValue(rpm);
-            }
-            if (evt.getKeyCode() == evt.VK_D) {
-                engineStatusText = "off";
-                engineStatus = false;
-                engineStatusTextField.setValue("off");
-                rpm = 0;
-                rpmField.setValue(rpm);
+                //start engine
+                if (evt.getKeyCode() == evt.VK_S) {
+                    engineStatusText = "on";
+                    engineStatus = true;
+                    engineStatusTextField.setValue("on");
+
+                }
+                if (evt.getKeyCode() == evt.VK_D) {
+                    engineStatusText = "off";
+                    engineStatus = false;
+                    engineStatusTextField.setValue("off");
+                }
+
             }
 
-        }
+            @Override
+            public void keyReleased
+            (KeyEvent evt
+            
+                ) {
+            Runnable r = () -> {
 
-        @Override
-        public void keyReleased(KeyEvent evt) {
-            /**
-             * Runnable r = () -> { try { while (rpm > 0 && speed > 0) {
-             *
-             * rpm -= 100; speed -= 1; Thread.sleep(2000);
-             *
-             * }
-             * } catch (InterruptedException e) { }
-             *
-             * }; Thread t = new Thread(r); t.start();
-             *
-             */
-        }
+                    while (speed > 0 && evt.getKeyCode() != evt.KEY_RELEASED) {
+                        try {
+                            synchronized (this) {
+                                speed -= 1;
+                                rpm = (60 * speed) / (double) gear;
+                                if(speed < 0){
+                                    speed = 0;
+                                }
+                                if (rpm < 0){
+                                    rpm = 0;
+                                }
+                                speedField.setValue((int) speed);
+                                rpmField.setValue((int) rpm);
+                                Thread.sleep(2000);
+                            }
+                        } catch (InterruptedException e) {
+                        }
+                    }
 
-        @Override
-        public void keyTyped(KeyEvent evt) {
+                };
+                Thread t = new Thread(r);
+                t.start();
+
+            }
+
+            @Override
+            public void keyTyped (KeyEvent evt
+            
+            
+        
+    
+
+) {
 
         }
+        
+            
+            
+        
+        
+        
     }
 
 }
